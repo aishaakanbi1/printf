@@ -1,48 +1,83 @@
-#include "main.h"
+#ifndef MAIN_H_
+#define MAIN_H_
 
-/**
- * _printf - main printf function
- * @format: string parameter
- *
- * Return: count of characters in @format
- */
-int _printf(const char *format, ...)
+#include <stdarg.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <limits.h>
+#include <unistd.h>
+#include <string.h>
+
+/* Flags struct */
+typedef struct flags
 {
-	va_list args;
-	const char *str;
-	int (*func)(va_list, flag_t *, mod_t *);
-	flag_t f = {0, 0, 0};
-	mod_t m = {0, 0, 0};
-	int i, count = 0, num = 0;
+	int plus;
+	int space;
+	int hash;
+} flag_t;
 
-	va_start(args, format);
-	if (!format || (format[0] == '%' && !format[1]))
-		return (-1);
-	if (format[0] == '%' && format[1] == ' ' && !format[2])
-		return (-1);
-	for (str = format; *str; str++)
-	{
-		if (*str == '%')
-		{
-			str++;
-			if (*str == '%')
-			{
-				count += _putchar('%');
-				continue;
-			}
-			for (; get_flags(*str, &f); str++)
-			{}
-			for (i = 0; *str >= 48 && *str <= 57; str++, i++)
-				num = (num * (i * 10)) + (*str - '0');
-			set_width(num, &m);
-			for (; get_modifier(*str, &m); str++)
-			{}
-			func = get_func(*str);
-			count += (func) ? func(args, &f, &m)
-					: _printf("%%%c", *str);
-		} else
-			count += _putchar(*str);
-	}
-	_putchar(-1), va_end(args);
-	return (count);
-}
+/* Modifiers struct */
+typedef struct modifiers
+{
+	int l;
+	int h;
+	int width;
+} mod_t;
+
+/* identifiers struct */
+typedef struct identifiers
+{
+	char symbol;
+	int (*func)(va_list, flag_t *, mod_t *);
+} id;
+
+
+
+/* Write functions*/
+int _putchar(char c);
+int _puts(char *str);
+
+
+/* _printf */
+int _printf(const char *format, ...);
+
+/* Print character functions */
+int _print_char(va_list, flag_t *, mod_t *);
+int _print_str(va_list, flag_t *, mod_t *);
+int _print_specifier(va_list, flag_t *, mod_t *);
+
+/* Print numbers in decimal */
+int  _print_dec(va_list, flag_t *, mod_t *);
+
+/* Print numbers in other bases */
+int _print_binary(va_list, flag_t *, mod_t *);
+int _print_hexa_upper(va_list, flag_t *, mod_t *);
+int _print_hexa_lower(va_list, flag_t *, mod_t *);
+int _print_octal(va_list, flag_t *, mod_t *);
+int _print_unsigned(va_list, flag_t *, mod_t *);
+int _print_address(va_list, flag_t *, mod_t *);
+
+/* Print addresses in hexadecimal format */
+int _print_address(va_list, flag_t *, mod_t *);
+
+/* Print custom */
+int _print_percent(va_list, flag_t *, mod_t *);
+int _print_reverse(va_list, flag_t *, mod_t *);
+int _print_rot13(va_list, flag_t *, mod_t *);
+
+/* Helper functions */
+void print_number(long n);
+int count_digits(long n);
+char *convert(unsigned long num, int base, int lowercase);
+
+/* Function Pointer Generator */
+int (*get_func(char c))(va_list, flag_t *, mod_t *);
+
+/* Sets flags */
+int get_flags(char elem, flag_t *);
+
+/* Sets the modifiers */
+int get_modifier(char elem, mod_t *);
+void set_width(int width, mod_t *);
+
+#endif /* MAIN_H_ */
